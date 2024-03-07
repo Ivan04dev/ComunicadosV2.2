@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filtrar valores</title>
+</head>
+<body>
+<div id="divisiones"></div>
+<div id="regiones"></div>
+<div id="ciudades"></div>
+
+<script>
+// Datos simulados de divisiones, regiones y ciudades
+const data = {
+  divisiones: [
+    {
+      nombre: 'Division A',
+      regiones: [
+        {
+          nombre: 'Región 1',
+          ciudades: ['Ciudad 1', 'Ciudad 2']
+        },
+        {
+          nombre: 'Región 2',
+          ciudades: ['Ciudad 3', 'Ciudad 4']
+        }
+      ]
+    },
+    {
+      nombre: 'Division B',
+      regiones: [
+        {
+          nombre: 'Región 3',
+          ciudades: ['Ciudad 5', 'Ciudad 6']
+        },
+        {
+          nombre: 'Región 4',
+          ciudades: ['Ciudad 7', 'Ciudad 8']
+        }
+      ]
+    }
+  ]
+};
+
+// Función para renderizar checkboxes
+function renderCheckboxes(elementId, items, onClick) {
+  const container = document.getElementById(elementId);
+  container.innerHTML = ''; // Limpiar el contenido anterior
+
+  items.forEach(item => {
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = item.nombre;
+    checkbox.onchange = onClick;
+
+    const label = document.createElement('label');
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(item.nombre));
+
+    container.appendChild(label);
+    container.appendChild(document.createElement('br'));
+  });
+}
+
+// Función para manejar el cambio en el checkbox de la división
+function handleDivisionChange() {
+  // Obtener todas las divisiones seleccionadas
+  const selectedDivisions = Array.from(document.querySelectorAll('#divisiones input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+  
+  // Filtrar las regiones y ciudades correspondientes a las divisiones seleccionadas
+  const filteredRegions = data.divisiones.filter(division => selectedDivisions.includes(division.nombre)).flatMap(division => division.regiones);
+  const filteredCities = filteredRegions.flatMap(region => region.ciudades);
+
+  // Renderizar los checkboxes de regiones y ciudades
+  renderCheckboxes('regiones', filteredRegions, handleRegionChange);
+  renderCheckboxes('ciudades', filteredCities, handleCityChange);
+}
+
+// Función para manejar el cambio en el checkbox de la región
+function handleRegionChange() {
+  // Obtener todas las regiones seleccionadas
+  const selectedRegions = Array.from(document.querySelectorAll('#regiones input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+  
+  // Filtrar las ciudades correspondientes a las regiones seleccionadas
+  const filteredCities = data.divisiones.flatMap(division => division.regiones.filter(region => selectedRegions.includes(region.nombre))).flatMap(region => region.ciudades);
+
+  // Renderizar los checkboxes de ciudades
+  renderCheckboxes('ciudades', filteredCities, handleCityChange);
+}
+
+// Función para manejar el cambio en el checkbox de la ciudad
+function handleCityChange() {
+  // Obtener todas las ciudades seleccionadas
+  const selectedCities = Array.from(document.querySelectorAll('#ciudades input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+
+  // Mostrar las ciudades seleccionadas
+  console.log('Ciudades seleccionadas:', selectedCities.join(', '));
+}
+
+// Inicializar la página con las divisiones
+renderCheckboxes('divisiones', data.divisiones, handleDivisionChange);
+</script>
+</body>
+</html>
